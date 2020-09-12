@@ -2,11 +2,13 @@ import React from 'react';
 import {
   createStackNavigator,
   createDrawerNavigator,
+  createSwitchNavigator,
   createAppContainer
 } from 'react-navigation';
 import { Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+import AuthScreen from '../screens/user/AuthScreen'
 import ProductsOverviewScreen from '../screens/shop/ProductsOverviewScreen';
 import ProductDetailScreen from '../screens/shop/ProductDetailScreen';
 import CartScreen from '../screens/shop/CartScreen';
@@ -92,4 +94,13 @@ const ShopNavigator = createDrawerNavigator(
   }
 );
 
-export default createAppContainer(ShopNavigator);
+const AuthNavigator = createStackNavigator({
+  Auth: AuthScreen
+}, {defaultNavigationOptions: defaultNavOptions})
+
+const mainNavigator = createSwitchNavigator({
+  Auth: AuthNavigator,
+  Shop: ShopNavigator
+})
+
+export default createAppContainer(mainNavigator);
