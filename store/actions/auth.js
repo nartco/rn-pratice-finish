@@ -1,5 +1,17 @@
+import { AsyncStorage } from "react-native";
+
 export const SIGNUP = "SIGNUP";
 export const LOGIN = "LOGIN";
+export const AUTHENTICATE = "AUTHENTICATE";
+export const LOGOUT = 'LOGOUT'
+
+export const authenticate = (userId, token) => {
+  return {
+    type: AUTHENTICATE,
+    userId: userId,
+    token: token
+  };
+};
 
 export const signUp = (email, password) => {
   return async dispatch => {
@@ -27,8 +39,11 @@ export const signUp = (email, password) => {
       throw new Error(message);
     }
     const resData = await response.json();
-    console.log(resData);
-    dispatch({ type: SIGNUP });
+    dispatch(authenticate(resData.localId, resData.token));
+    const expirationDate = new Date(
+      new Date().getTime() + parseInt(resData.expiresIn) * 1000
+    );
+    saveDataToStorage(resData.idToken, resData.localId, expirationDate);
   };
 };
 
@@ -63,6 +78,25 @@ export const login = (email, password) => {
     }
     const resData = await response.json();
     console.log(resData);
-    dispatch({ type: LOGIN });
+    dispatch(authenticate(resData.localId, resData.token));
+    const expirationDate = new Date(
+      new Date().getTime() + parseInt(resData.expiresIn) * 1000
+    );
+    saveDataToStorage(resData.idToken, resData.localId, expirationDate);
   };
+};
+
+export const logout = () => {
+  return { type: LOGOUT}
+}
+
+const saveDataToStorage = (token, userId, expirationDate) => {
+  AsyncStorage.setItem(
+    "userData",
+    JSON.stringify({
+      token: token,
+      userId: userId,
+      expiryDate: expirationDate.toISOString()
+    })
+  );
 };
